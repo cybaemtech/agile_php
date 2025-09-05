@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Handle auth routes
+RewriteRule ^auth/(.*)$ auth.php [QSA,L]
+
+# Handle user routes
+RewriteRule ^users/(.*)$ users.php [QSA,L]
+RewriteRule ^users$ users.php [QSA,L]
+
+# Handle team routes
+RewriteRule ^teams/(.*)$ teams.php [QSA,L]
+RewriteRule ^teams$ teams.php [QSA,L]
+
+# Handle project routes
+RewriteRule ^projects/(.*)$ projects.php [QSA,L]
+RewriteRule ^projects$ projects.php [QSA,L]
+
+# Enable CORS for preflight requests
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, PATCH, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
