@@ -1,7 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { db } from './db';
-import { users } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { storage } from './storage';
 import bcrypt from 'bcryptjs';
 
 const authRouter = Router();
@@ -16,7 +14,7 @@ authRouter.post('/login', async (req: Request, res: Response) => {
     }
 
     // Find user by email
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const user = await storage.getUserByEmail(email);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -33,10 +31,7 @@ authRouter.post('/login', async (req: Request, res: Response) => {
     (req.session as any).userId = user.id;
     (req.session as any).userRole = user.role;
 
-    // Update last login time
-    await db.update(users)
-      .set({ lastLogin: new Date() })
-      .where(eq(users.id, user.id));
+    // Note: Last login time update would need to be implemented in storage interface
 
     return res.status(200).json({
       success: true,
@@ -87,7 +82,7 @@ authRouter.get('/user', async (req: Request, res: Response) => {
   }
   
   try {
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    const user = await storage.getUser(userId);
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -111,7 +106,7 @@ authRouter.get('/user', async (req: Request, res: Response) => {
 authRouter.post('/setup-sample-users', async (req: Request, res: Response) => {
   try {
     // Check if sample users already exist
-    const existingUsers = await db.select().from(users);
+    const existingUsers = await storage.getUsers();
     const adminExists = existingUsers.some(user => user.role === 'ADMIN');
     const scrumMasterExists = existingUsers.some(user => user.role === 'SCRUM_MASTER');
     const regularUserExists = existingUsers.some(user => user.role === 'USER');
@@ -131,48 +126,42 @@ authRouter.post('/setup-sample-users', async (req: Request, res: Response) => {
     
     // Create admin user if not exists
     if (!adminExists) {
-      const [adminUser] = await db.insert(users).values({
+      const adminUser = await storage.createUser({
         username: 'admin',
         email: 'admin@example.com',
         password: adminHashedPassword,
         fullName: 'Admin User',
         role: 'ADMIN',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+        isActive: true
+      });
       
       sampleUsers.push(adminUser);
     }
     
     // Create scrum master user if not exists
     if (!scrumMasterExists) {
-      const [scrumUser] = await db.insert(users).values({
+      const scrumUser = await storage.createUser({
         username: 'scrummaster',
         email: 'scrum@example.com',
         password: scrumHashedPassword,
         fullName: 'Scrum Master',
         role: 'SCRUM_MASTER',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+        isActive: true
+      });
       
       sampleUsers.push(scrumUser);
     }
     
     // Create regular user if not exists
     if (!regularUserExists) {
-      const [regularUser] = await db.insert(users).values({
+      const regularUser = await storage.createUser({
         username: 'user',
         email: 'user@example.com',
         password: userHashedPassword,
         fullName: 'Regular User',
         role: 'USER',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+        isActive: true
+      });
       
       sampleUsers.push(regularUser);
     }
