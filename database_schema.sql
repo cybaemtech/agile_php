@@ -7,8 +7,8 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Create database if not exists (for cPanel)
-CREATE DATABASE IF NOT EXISTS `cybaemtech_Agile` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `cybaemtech_Agile`;
+CREATE DATABASE IF NOT EXISTS `agile` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `agile`;
 
 -- --------------------------------------------------------
 

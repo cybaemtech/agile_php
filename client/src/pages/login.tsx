@@ -40,7 +40,7 @@ export default function LoginPage() {
     // Check if user is already logged in
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/status', {
+    const response = await fetch('/api/auth/status', {
           credentials: 'include' // Include cookies for session management
         });
         const data = await response.json();
@@ -60,7 +60,7 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/auth/login', {
+  const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export default function LoginPage() {
       
       if (response.ok && result.success) {
         // Invalidate cache to fetch fresh user data
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
         
         toast({
           title: "Login successful",
